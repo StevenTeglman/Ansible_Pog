@@ -1,0 +1,25 @@
+Ansible Steps.
+
+Install WSL if on windows:
+1. https://learn.microsoft.com/en-us/windows/wsl/install
+
+2. https://pypa.github.io/pipx/installation/
+
+apt install python3.10-venv
+apt-get install sshpass
+
+3.1 Navigate to etc/ansible (might have to create it)
+3.2 sudo nano hosts
+3.3 create your group with square brackets
+	insert your pi's host name or 
+	
+	```  
+	[pi]
+	192.168.1.11 ansible_ssh_pass=pi ansible_user=pi
+
+
+
+
+
+
+
