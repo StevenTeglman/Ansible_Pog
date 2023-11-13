@@ -1,0 +1,68 @@
+- hosts: all
+  become: yes
+  vars:
+    pkgstoinstall: [ libffi-dev, libssl-dev, python3, python3-pip ]
+  tasks:
+    - name: Install a list of packages
+      apt:
+        name: "{{ pkgstoinstall }}"
+        update_cache: yes
+
+    - name: Remove python-configparser package
+      apt:
+        name: python-configparser
+        state: absent
+
+    - name: get docker convenience script
+      shell: curl -fsSL https://get.docker.com -o get-docker.sh
+      args:
+        creates: /home/pi/get-docker.sh
+
+    - name: install docker
+      shell: sh /home/pi/get-docker.sh
+      args:
+        creates: /usr/bin/docker
+
+    - name: make pi user execute docker commands
+      shell: usermod -aG docker pi
+
+    - name: Install Docker Compose
+      become: yes
+      apt:
+        name: docker-compose
+        state: present
+
+    - name: Create Docker Compose Directory
+      file:
+        path: /matrix
+        state: directory
+      tags:
+        -compose
+
+    - name: Create Docker Compose file
+      template:
+        src: docker-compose.yml.j2  # This is the template file
+        dest: /matrix/docker-compose.yml  # This is where the file will be created
+      notify: Restart Docker Compose  # This will notify the handler to restart Docker Compose if the file changes
+      tags:
+        -compose
+
+    - name: Generate Synapse Configuration
+      command: docker run -it --rm -v /var/docker_data/matrix:/data -e SYNAPSE_SERVER_NAME=matrix.pog.org -e SYNAPSE_REPORT_STATS=yes matrixdotorg/synapse:latest generate
+      args:
+        chdir: /matrix
+
+    - name: Ensure docker-compose service is available
+      shell:
+        cmd: docker-compose up -d
+      args:
+        chdir: /matrix
+      ignore_errors: true  # Ignore errors if the service is not found initially
+      notify: Restart Docker Compose
+
+  handlers:
+    - name: Restart Docker Compose
+      shell:
+        cmd: docker-compose restart
+      args:
+        chdir: /matrix
