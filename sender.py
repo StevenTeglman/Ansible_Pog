@@ -3,8 +3,8 @@ import sys
 import json
 import subprocess
 # IP address and port of the receiver
-ip_address = '130.225.39.77'  # Replace this with the recipient's IP address
-port = 80  # Replace this with the recipient's port number
+ip_address = '130.225.39.202'  # Replace this with the recipient's IP address
+port = 8081  # Replace this with the recipient's port number
 
 pi_private_key = ''
 pi_public_key = ''
