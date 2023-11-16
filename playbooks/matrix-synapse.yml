@@ -3,6 +3,21 @@
   vars:
     pkgstoinstall: [ libffi-dev, libssl-dev, python3, python3-pip ]
   tasks:
+    - name: Configure DNS in resolv.conf
+      become: yes
+      copy:
+        dest: /etc/resolv.conf
+        content: |
+          nameserver 8.8.8.8
+          nameserver 8.8.4.4
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
     - name: Install a list of packages
       apt:
         name: "{{ pkgstoinstall }}"
@@ -60,9 +75,170 @@
       ignore_errors: true  # Ignore errors if the service is not found initially
       notify: Restart Docker Compose
 
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Create or update Nginx configuration file
+      template:
+        src: matrix.pog.config.j2  # Replace with the path to your local Jinja2 template file
+        dest: /etc/nginx/sites-available/matrix.pog.com
+      notify: Reload Nginx
+
+    - name: Create symbolic link for Nginx configuration
+      file:
+        src: /etc/nginx/sites-available/matrix.pog.com
+        dest: /etc/nginx/sites-enabled/matrix.pog.com
+        state: link
+      notify: Reload Nginx
+
+    - name: Remove default Nginx configuration files
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - /etc/nginx/sites-available/default
+        - /etc/nginx/sites-enabled/default
+      notify: Reload Nginx
+
+    - name: Run nginx -t to check configuration
+      command: nginx -t
+      register: nginx_check
+      ignore_errors: true
+      notify: Reload Nginx
+
+    - fail:
+        msg: "Nginx configuration test failed. Check your configuration."
+      when: nginx_check.rc != 0
+
+    - name: Install UFW
+      apt:
+        name: ufw
+        state: present
+
+    - name: Allow SSH in UFW
+      ufw:
+        rule: allow
+        name: OpenSSH
+
+    - name: Allow Ansible in UFW
+      ufw:
+        rule: allow
+        port: 22
+        proto: tcp
+
+    - name: Allow Nginx Full in UFW
+      ufw:
+        rule: allow
+        name: "Nginx Full"
+
+    - name: Allow Nginx HTTP in UFW
+      ufw:
+        rule: allow
+        name: "Nginx HTTP"
+
+    - name: Allow Nginx HTTPS in UFW
+      ufw:
+        rule: allow
+        name: "Nginx HTTPS"
+
+    - name: Enable UFW rules
+      ufw:
+        rule: allow
+        port: 51820
+        proto: udp
+        state: enabled
+
+    - name: Enable UFW rule for port 80
+      ufw:
+        rule: allow
+        port: 80
+        state: enabled
+
+    - name: Enable UFW rule for port 443
+      ufw:
+        rule: allow
+        port: 443
+        state: enabled
+
+    - name: Enable UFW
+      ufw:
+        state: enabled
+
+    - name: Install WireGuard tools
+      apt:
+        name: wireguard-tools
+        state: present
+
+    - name: Generate WireGuard private key
+      shell: "wg genkey"
+      register: private_key_result
+
+    - name: Save WireGuard private key to file
+      copy:
+        content: "{{ private_key_result.stdout }}"
+        dest: "/etc/wireguard/private-key-matrix-synapse"
+        mode: "0600"
+
+    - name: Generate WireGuard public key
+      shell: "echo '{{ private_key_result.stdout }}' | wg pubkey"
+      register: public_key_result
+
+    - name: Save WireGuard public key to file
+      copy:
+        content: "{{ public_key_result.stdout }}"
+        dest: "/etc/wireguard/public-key-matrix-synapse"
+        mode: "0644"
+
+    - name: Ensure destination directory exists
+      file:
+        path: /scripts
+        state: directory
+        mode: '0755'
+      tags:
+        - script
+
+    - name: Clone Git repository
+      git:
+        repo: https://github.com/StevenTeglman/Ansible_Pog
+        dest: /scripts
+      tags:
+        - script
+
+    - name: Run specific Python file
+      command: python3 /scripts/sender.py
+      tags:
+        - script
+
+    - name: Install resolvconf
+      become: yes
+      become_user: root
+      apt:
+        name: resolvconf
+        state: present
+      tags:
+        - script
+
+    - name: Start WireGuard service
+      command: systemctl start wg-quick@wgmatrixsynapse
+      ignore_errors: yes  # Ignore errors in case the service is already running
+      tags:
+        - script
+
+    - name: Enable WireGuard service on boot
+      command: systemctl enable wg-quick@wgmatrixsynapse
+      tags:
+        - script
+
   handlers:
     - name: Restart Docker Compose
       shell:
         cmd: docker-compose restart
       args:
         chdir: /matrix
+
+    - name: Reload Nginx
+      service:
+        name: nginx
+        state: reloaded

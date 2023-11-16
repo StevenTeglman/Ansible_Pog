@@ -1,0 +1,8 @@
+server {
+
+        server_name matrix.pog.com;
+
+        location / {
+                proxy_pass http://localhost:8008;
+        }
+}
