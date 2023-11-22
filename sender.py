@@ -64,12 +64,12 @@ try:
     with open(file_path, 'w') as file:
         lines_to_add = ['[Interface]\n',
                 'Address = ' + received_msg['assigned_ip'] + '/24' + '\n',
-                'PrivateKey = ' + pi_private_key + '\n', 
+                'PrivateKey = ' + pi_private_key, 
                 'DNS = 8.8.8.8\n',
                 '\n',
                 '[Peer]\n',
-                'PublicKey = ' + received_msg['proxy_public_key'] + '\n',
-                'Endpoint = 130.225.39.77:51820\n',
+                'PublicKey = ' + received_msg['proxy_public_key'],
+                'Endpoint = ' + ip_address + ':51820\n',
                 'AllowedIPs = 10.0.0.0/24, 192.168.1.0/24\n',
                 'PersistentKeepalive = 25']
         file.writelines(lines_to_add)
@@ -82,16 +82,16 @@ try:
 
     # Run a shell command which updates wireguard interface without interupting established connections 
     command = "sudo systemctl reload wg-quick@wgmatrixsynapse"
-    result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    #result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
     # Print the output of the command
-    print("Output:", result.stdout)
+    #print("Output:", result.stdout)
 
     # Print any errors that occurred during the command execution
-    print("Errors:", result.stderr)
+    #print("Errors:", result.stderr)
 
     # Print the return code of the command
-    print("Return Code:", result.returncode)
+    #print("Return Code:", result.returncode)
 
 
 finally:
