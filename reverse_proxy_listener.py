@@ -98,9 +98,9 @@ class WireguardModule:
 
     def updateConfig(self, peer_public_key, peer_ip): 
         wireguard_config = f"""
-        [Peer]
-        PublicKey = {peer_public_key}
-        AllowedIPs = {peer_ip}/32
+[Peer]
+PublicKey = {peer_public_key}
+AllowedIPs = {peer_ip}/32
         """
 
         with open('/etc/wireguard/wgreverseproxy.conf', 'a') as file:
