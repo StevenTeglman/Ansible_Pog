@@ -58,7 +58,7 @@ try:
     new_text = 'Address = ' + response.decode() + '/24'
 
     # Read the content of the file into memory
-
+    #192.168.1.0/24
 
 
     with open(file_path, 'w') as file:
@@ -70,7 +70,7 @@ try:
                 '[Peer]\n',
                 'PublicKey = ' + received_msg['proxy_public_key'],
                 'Endpoint = ' + ip_address + ':51820\n',
-                'AllowedIPs = 10.0.0.0/24, 192.168.1.0/24\n',
+                'AllowedIPs = 10.0.0.0/24\n',
                 'PersistentKeepalive = 25']
         file.writelines(lines_to_add)
 
