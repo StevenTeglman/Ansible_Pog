@@ -64,7 +64,7 @@ try:
     with open(file_path, 'w') as file:
         lines_to_add = ['[Interface]\n',
                 'Address = ' + received_msg['assigned_ip'] + '/24' + '\n',
-                'PrivateKey = ' + pi_private_key, 
+                'PrivateKey = ' + pi_private_key + '\n', 
                 'DNS = 8.8.8.8\n',
                 '\n',
                 '[Peer]\n',
