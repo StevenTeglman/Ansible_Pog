@@ -81,9 +81,13 @@ try:
 
 
     # Run a shell command which updates wireguard interface without interupting established connections 
-    command = "sudo systemctl reload wg-quick@wgmatrixsynapse"
-    #result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    start_wireguard_command = "sudo systemctl start wg-quick@wgmatrixsynapse"
+    enable_wireguard_command = "sudo systemctl enable wg-quick@wgmatrixsynapse"
+    subprocess.run(start_wireguard_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    subprocess.run(enable_wireguard_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
+
+    #result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     # Print the output of the command
     #print("Output:", result.stdout)
 
