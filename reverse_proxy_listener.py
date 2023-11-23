@@ -60,18 +60,18 @@ class NginxModule:
 
     def updateConfig(self, peer_ip):
         nginx_config = f"""
-        server {{
-            listen 130.225.39.202:80;
-            server_name 130.225.39.202;
+server {{
+    listen 130.225.39.202:80;
+    server_name 130.225.39.202;
 
-            location / {{
-                proxy_pass http://{peer_ip}:8008;
-                proxy_set_header Host $host;
-                proxy_set_header X-Real-IP $remote_addr;
-                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                proxy_set_header X-Forwarded-Proto $scheme;
-            }}
-        }}
+    location / {{
+        proxy_pass http://{peer_ip}:8008;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }}
+}}
         """
 
         with open('/etc/nginx/sites-available/matrix-synapse-proxy.conf', 'a') as file:
