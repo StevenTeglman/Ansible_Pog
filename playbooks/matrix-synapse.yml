@@ -191,6 +191,17 @@
         dest: "/etc/wireguard/public-key-matrix-synapse"
         mode: "0644"
 
+    - name: Stop WireGuard service
+      command: systemctl stop wg-quick@wgmatrixsynapse
+      ignore_errors: yes  # Ignore errors in case the service is already running
+      tags:
+        - script
+
+    - name: Disable WireGuard service on boot
+      command: systemctl disable wg-quick@wgmatrixsynapse
+      tags:
+        - script
+
     - name: Ensure destination directory exists
       file:
         path: /scripts
@@ -203,6 +214,7 @@
       git:
         repo: https://github.com/StevenTeglman/Ansible_Pog
         dest: /scripts
+        force: yes
       tags:
         - script
 

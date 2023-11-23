@@ -1,2 +1,2 @@
 [raspberrypi]
-pi.local ansible_ssh_pass=pi ansible_user=pi
+pi ansible_ssh_pass=pi ansible_user=pi
