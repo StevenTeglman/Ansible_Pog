@@ -49,6 +49,14 @@ class NetworkModule:
         message = json.dumps(data_to_send)
         self.client_socket.sendall(message.encode())
 
+    def sendError(self, message): 
+        data_to_send = {
+            "error": message,
+        }
+
+        message = json.dumps(data_to_send)
+        self.client_socket.sendall(message.encode())
+
     def close(self): 
         self.current_ip += 1
         self.peer_ip = f"{self.ip_template}{self.current_ip}"
@@ -89,7 +97,7 @@ server {{
         # Print the return code of the command
         print("Return Code:", result.returncode)
 
-    def checkDomainAvailability(self, search_string):
+    def isDomainTaken(self, search_string):
         try:
             with open('/etc/nginx/sites-available/matrix-synapse-proxy.conf', 'r') as file:
                 content = file.read()
@@ -143,22 +151,21 @@ if __name__ == "__main__":
         connection.accept()
         connection.receive()
 
-        proxy.checkDomainAvailability(connection.received_msg['domain'])
+        if proxy.isDomainTaken(connection.received_msg['domain']):
+            connection.sendError("Domain is already taken")
+            connection.close()
+        else: 
+            '''
+            #Update wireguard with client info
+            wireguard.updateConfig(connection.received_msg['key'], connection.peer_ip)
+            wireguard.reloadService()
 
-        '''
+            #Update nginx with client info
+            proxy.updateConfig(connection.peer_ip)
+            proxy.reloadService()
 
-        #Update wireguard with client info
-        wireguard.updateConfig(connection.received_msg['key'], connection.peer_ip)
-        wireguard.reloadService()
-
-        #Update nginx with client info
-        proxy.updateConfig(connection.peer_ip)
-        proxy.reloadService()
-
-        #send back public key of proxy server and close connection
-        connection.send(wireguard.proxy_public_key)
-
-        '''
-        connection.close()
-
+            #send back public key of proxy server and close connection
+            connection.send(wireguard.proxy_public_key)
+            connection.close()
+            '''
 
