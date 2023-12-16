@@ -1,7 +1,7 @@
 import socket
 import json
 import subprocess
-
+import re
 class NetworkModule: 
     def __init__(self):
 
@@ -89,6 +89,19 @@ server {{
         # Print the return code of the command
         print("Return Code:", result.returncode)
 
+    def checkDomainAvailability(self, search_string):
+        try:
+            with open('/etc/nginx/sites-available/matrix-synapse-proxy.conf', 'r') as file:
+                content = file.read()
+                match = re.search(search_string, content)
+                if match:
+                    print(f"Found '{search_string}' in the file.")
+                    print("Match:", match.group())
+                else:
+                    print(f"'{search_string}' not found in the file.")
+        except FileNotFoundError:
+            print("File /etc/nginx/sites-available/matrix-synapse-proxy.conf not found.")
+
 class WireguardModule: 
     def __init__(self):
 
@@ -130,6 +143,10 @@ if __name__ == "__main__":
         connection.accept()
         connection.receive()
 
+        proxy.checkDomainAvailability(connection.received_msg['domain'])
+
+        '''
+
         #Update wireguard with client info
         wireguard.updateConfig(connection.received_msg['key'], connection.peer_ip)
         wireguard.reloadService()
@@ -140,6 +157,8 @@ if __name__ == "__main__":
 
         #send back public key of proxy server and close connection
         connection.send(wireguard.proxy_public_key)
+
+        '''
         connection.close()
 
 
