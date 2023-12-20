@@ -4,7 +4,6 @@ import subprocess
 import re
 class NetworkModule: 
     def __init__(self):
-
         #Proxy Server
         self.ip = '0.0.0.0' # Listen on all available network interfaces
         self.port = 8081

@@ -18,13 +18,12 @@ class NetworkModule:
 
         # Connect to the server
         self.client_socket.connect((ip_address, port))
-        # Send the message
+        # Send message
         self.client_socket.sendall(message.encode())
 
     def receive(self): 
-        # Receive data from the server (optional)
+        # Receive data from the server 
         response = self.client_socket.recv(1024)
-        print('Received:', response.decode())
         self.received_msg = json.loads(response.decode())
     
     def close(self): 
@@ -32,7 +31,6 @@ class NetworkModule:
         self.client_socket.close()
 
 class WireguardModule: 
-
     def __init__(self): 
         with open('/etc/wireguard/public-key-matrix-synapse', 'r') as file:
             # Read the first line
@@ -59,24 +57,11 @@ class WireguardModule:
             file.writelines(lines_to_add)
     
     def reloadService(self): 
-        # Run a shell command which updates wireguard interface without interupting established connections 
+        # Run command to update wireguard interface without interupting established connections 
         start_wireguard_command = "sudo systemctl start wg-quick@wgmatrixsynapse"
         enable_wireguard_command = "sudo systemctl enable wg-quick@wgmatrixsynapse"
         subprocess.run(start_wireguard_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         subprocess.run(enable_wireguard_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-
-
-        #result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        # Print the output of the command
-        #print("Output:", result.stdout)
-
-        # Print any errors that occurred during the command execution
-        #print("Errors:", result.stderr)
-
-        # Print the return code of the command
-        #print("Return Code:", result.returncode)
-
-
 
 if __name__ == "__main__":
     #Create objects
