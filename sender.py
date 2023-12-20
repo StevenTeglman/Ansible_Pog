@@ -84,7 +84,7 @@ if __name__ == "__main__":
     wireguard = WireguardModule()
 
     #Listen for connection and receive data
-    connection.send('testkey', '130.225.39.202', 8081, 'steven')
+    connection.send(wireguard.pi_public_key, '130.225.39.202', 8081, 'steven')
     connection.receive()
 
     if 'error' in connection.received_msg: 
