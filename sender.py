@@ -9,10 +9,10 @@ class NetworkModule:
         # Create a TCP socket
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     
-    def send(self, pi_public_key, ip_address, port): 
+    def send(self, pi_public_key, ip_address, port, domain): 
         data_to_send = {
             "key": pi_public_key,
-            "domain": 'domain'
+            "domain": domain
         }
         message = json.dumps(data_to_send)
 
@@ -25,7 +25,7 @@ class NetworkModule:
         # Receive data from the server (optional)
         response = self.client_socket.recv(1024)
         print('Received:', response.decode())
-        received_msg = json.loads(response.decode())
+        self.received_msg = json.loads(response.decode())
     
     def close(self): 
         # Close the socket
@@ -42,7 +42,7 @@ class WireguardModule:
             # Read the first line
             self.pi_private_key = file.readline()
 
-        self. file_path = '/etc/wireguard/wgmatrixsynapse.conf'
+        self.file_path = '/etc/wireguard/wgmatrixsynapse.conf'
     
     def updateConfig(self, internal_ip, proxy_public_key, proxy_ip):        
         with open(self.file_path, 'w') as file:
@@ -89,18 +89,22 @@ class WireguardModule:
 if __name__ == "__main__":
     #Create objects
     connection = NetworkModule()
-    wireguard = WireguardModule()
+    #wireguard = WireguardModule()
 
     #Listen for connection and receive data
-    connection.send('testkey', '130.225.39.202', 8081)
+    connection.send('testkey', '130.225.39.202', 8081, 'steven.nanopog.com')
     connection.receive()
 
-    #Update wireguard with client info
-    wireguard.updateConfig(connection.received_msg['assigned_ip'], connection.received_msg['proxy_public_key'], '130.225.39.202')
-    wireguard.reloadService()
+    if connection.received_msg['error']: 
+        print(connection.received_msg['error'])
+        connection.close()
+    else: 
+        #Update wireguard with client info
+        #wireguard.updateConfig(connection.received_msg['assigned_ip'], connection.received_msg['proxy_public_key'], '130.225.39.202')
+        #wireguard.reloadService()
 
-    #send back public key of proxy server and close connection
-    connection.close()
+        #send back public key of proxy server and close connection
+        connection.close()
 
 
 
