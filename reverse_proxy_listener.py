@@ -176,7 +176,7 @@ if __name__ == "__main__":
             connection.sendError("Domain is already taken")
             connection.close()
         else: 
-            '''
+            
             #Update wireguard with client info
             wireguard.updateConfig(connection.received_msg['key'], connection.peer_ip)
             wireguard.reloadService()
@@ -187,7 +187,5 @@ if __name__ == "__main__":
 
             #send back public key of proxy server and close connection
             connection.send(wireguard.proxy_public_key)
-            connection.close()
-            '''
             connection.close()
 
