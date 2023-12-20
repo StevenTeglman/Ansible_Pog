@@ -182,7 +182,7 @@ if __name__ == "__main__":
             wireguard.reloadService()
 
             #Update nginx with client info
-            proxy.updateConfig(connection.peer_ip)
+            proxy.updateConfig(connection.peer_ip, connection.received_msg['domain'])
             proxy.reloadService()
 
             #send back public key of proxy server and close connection
