@@ -87,7 +87,7 @@ if __name__ == "__main__":
     connection.send('testkey', '130.225.39.202', 8081, 'steven')
     connection.receive()
 
-    if connection.received_msg['error']: 
+    if 'error' in connection.received_msg: 
         print(connection.received_msg['error'])
         connection.close()
     else: 
