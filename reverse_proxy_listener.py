@@ -120,7 +120,7 @@ server {{
         try:
             with open('/etc/nginx/sites-available/matrix-synapse-proxy.conf', 'r') as file:
                 content = file.read()
-                match = re.search(search_string, content)
+                match = re.search(search_string + ".nanopog.com", content)
                 if match:
                     #print(f"Found '{search_string}' in the file.")
                     #print("Match:", match.group())
