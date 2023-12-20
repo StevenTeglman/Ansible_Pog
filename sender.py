@@ -78,21 +78,13 @@ class WireguardModule:
 
 
 
-
-
-
-
-
-
-
-
 if __name__ == "__main__":
     #Create objects
     connection = NetworkModule()
-    #wireguard = WireguardModule()
+    wireguard = WireguardModule()
 
     #Listen for connection and receive data
-    connection.send('testkey', '130.225.39.202', 8081, 'steven.nanopog.com')
+    connection.send('testkey', '130.225.39.202', 8081, 'steven')
     connection.receive()
 
     if connection.received_msg['error']: 
@@ -100,8 +92,8 @@ if __name__ == "__main__":
         connection.close()
     else: 
         #Update wireguard with client info
-        #wireguard.updateConfig(connection.received_msg['assigned_ip'], connection.received_msg['proxy_public_key'], '130.225.39.202')
-        #wireguard.reloadService()
+        wireguard.updateConfig(connection.received_msg['assigned_ip'], connection.received_msg['proxy_public_key'], '130.225.39.202')
+        wireguard.reloadService()
 
         #send back public key of proxy server and close connection
         connection.close()
