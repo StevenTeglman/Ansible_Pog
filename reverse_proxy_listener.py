@@ -66,11 +66,11 @@ class NetworkModule:
 
 class NginxModule: 
 
-    def updateConfig(self, peer_ip):
+    def updateConfig(self, peer_ip, domain):
         nginx_config = f"""
 server {{
-    listen 130.225.39.202:80;
-    server_name 130.225.39.202;
+    listen 130.225.39.202:443 ssl;
+    server_name {domain}.nanopog.com;
 
     location / {{
         proxy_pass http://{peer_ip}:8008;
@@ -79,6 +79,25 @@ server {{
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }}
+
+    ssl_certificate         /etc/ssl/certs/fullchain.pem;
+    ssl_certificate_key     /etc/ssl/private/privkey.pem;
+}}
+
+server {{
+    listen 130.225.39.202:8448 ssl;
+    server_name {domain}.nanopog.com;
+
+    location / {{
+        proxy_pass http://{peer_ip}:8448;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }}
+
+    ssl_certificate         /etc/ssl/certs/fullchain.pem;
+    ssl_certificate_key     /etc/ssl/private/privkey.pem;
 }}
         """
 
