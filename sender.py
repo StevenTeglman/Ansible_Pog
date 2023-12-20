@@ -47,7 +47,7 @@ class WireguardModule:
     def updateConfig(self, internal_ip, proxy_public_key, proxy_ip):        
         with open(self.file_path, 'w') as file:
             lines_to_add = ['[Interface]\n',
-                    'Address = ' + ip + '/24' + '\n',
+                    'Address = ' + internal_ip + '/24' + '\n',
                     'PrivateKey = ' + self.pi_private_key + '\n', 
                     'DNS = 8.8.8.8\n',
                     '\n',
