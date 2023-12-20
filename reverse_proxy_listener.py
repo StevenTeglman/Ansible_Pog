@@ -122,10 +122,12 @@ server {{
                 content = file.read()
                 match = re.search(search_string, content)
                 if match:
-                    print(f"Found '{search_string}' in the file.")
-                    print("Match:", match.group())
+                    #print(f"Found '{search_string}' in the file.")
+                    #print("Match:", match.group())
+                    return True
                 else:
-                    print(f"'{search_string}' not found in the file.")
+                    #print(f"'{search_string}' not found in the file.")
+                    return False
         except FileNotFoundError:
             print("File /etc/nginx/sites-available/matrix-synapse-proxy.conf not found.")
 
@@ -187,4 +189,5 @@ if __name__ == "__main__":
             connection.send(wireguard.proxy_public_key)
             connection.close()
             '''
+            connection.close()
 
